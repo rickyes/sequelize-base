@@ -1,0 +1,22 @@
+{
+  "name": "sequelize-base",
+  "version": "0.0.1",
+  "description": "A base class for sequelize with some common functions.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rickyes/sequelize-base.git"
+  },
+  "keywords": [
+    "sequelize"
+  ],
+  "author": "Ricky 泽阳 <mail@zhoumq.cn>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rickyes/sequelize-base/issues"
+  },
+  "homepage": "https://github.com/rickyes/sequelize-base#readme"
+}
