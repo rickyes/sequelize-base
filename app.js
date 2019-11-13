@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * model 基类
+ * sequelize model 基类
  */
 
 const EventEmitter = require('events').EventEmitter;
@@ -35,7 +35,7 @@ class BaseModel extends EventEmitter {
    * @param {Object} where 查询条件
    * @param {Object} opts 查询配置参数
    */
-  wrapWhere(where, opts = {}) {
+  _wrapWhere(where, opts = {}) {
     const baseWhere = {};
     this._enableSoftDeleted && (baseWhere[this._softDeleted] = this._softDeletedYes);
     const findWhere = {
@@ -51,17 +51,17 @@ class BaseModel extends EventEmitter {
    * @param {Object} findWhere 查询条件
    * @param {Array<String>} fields 返回字段
    */
-  appendFields(findWhere, fields = []) {
+  _appendFields(findWhere, fields = []) {
     fields.length && (findWhere.attributes = fields);
   }
 
   /**
    * 统计数量
-   * @param {Object} where 统计条件
+   * @param {Object}? where 统计条件
    * @returns {Number} 数量
    */
   async count(where) {
-    const findWhere = this.wrapWhere(where);
+    const findWhere = this._wrapWhere(where);
 
     return this.entity.count(findWhere);
   }
@@ -69,19 +69,14 @@ class BaseModel extends EventEmitter {
 
   /**
    * 查询列表
-   * @param {Object} where 查询条件
-   * @param {Array<String>} fields 返回字段
+   * @param {Object}? where 查询条件
+   * @param {Array<String>}? fields 返回字段
    * @returns {Array<Object>} 返回值
    */
-  async getList(where, fields = []) {
-    let whereTmp = where;
-    let fieldsTemp = fields;
-    if (util.isType('Array', whereTmp)) {
-      fieldsTemp = whereTmp;
-      whereTmp = {};
-    }
-    const findWhere = this.wrapWhere(whereTmp);
-    this.appendFields(findWhere, fieldsTemp);
+  async getList(where = {}, fields = []) {
+    const [whereTmp, fieldsTemp] = util.wrapWhereFieldsByType(where, fields);
+    const findWhere = this._wrapWhere(whereTmp);
+    this._appendFields(findWhere, fieldsTemp);
 
     return this.entity.findAll(findWhere);
   }
@@ -90,11 +85,14 @@ class BaseModel extends EventEmitter {
   /**
    * 查询
    * @param {Object} where 查询条件
-   * @param {Array<String>} fields 返回字段
+   * @param {Array<String>}? fields 返回字段
    */
-  async getData(where, fields = []) {
-    const findWhere = this.wrapWhere(where, {raw: true});
-    this.appendFields(findWhere, fields);
+  async getData(where = {}, fields = []) {
+    if (Object.keys(where).length === 0) {
+      throw new Error('No query conditions');
+    }
+    const findWhere = this._wrapWhere(where, {raw: true});
+    this._appendFields(findWhere, fields);
 
     return this.entity.findOne(findWhere);
   }
@@ -104,13 +102,14 @@ class BaseModel extends EventEmitter {
    * 分页查询
    * @param {Number} currentPage 当前页
    * @param {Number} pageSize 每页数量
-   * @param {Object} where 查询条件
-   * @param {Array<String>} fields 返回字段
+   * @param {Object} where? 查询条件
+   * @param {Array<String>} fields? 返回字段
    */
   async getPageList(currentPage, pageSize, where, fields = []) {
     const offset = util.getOffset(currentPage, pageSize);
-    const findWhere = this.wrapWhere(where, {offset, limit: pageSize});
-    this.appendFields(findWhere, fields);
+    const [whereTmp, fieldsTemp] = util.wrapWhereFieldsByType(where, fields);
+    const findWhere = this._wrapWhere(whereTmp, {offset, limit: pageSize});
+    this._appendFields(findWhere, fieldsTemp);
 
     return this.entity.findAndCountAll(findWhere);
   }
@@ -131,12 +130,20 @@ class BaseModel extends EventEmitter {
    * 删除，如果配置软删除则默认软删除
    * @param {Object} where 删除条件
    */
-  async delete(where) {
-    const delBaseWhere = {};
-    this._enableSoftDeleted && (delBaseWhere[this._softDeleted] = this._softDeletedNo);
-    const deleteWhere = this.wrapWhere(Object.assign(delBaseWhere, where));
+  async delete(where = {}) {
+    if (Object.keys(where).length === 0) {
+      throw new Error('No delete conditions');
+    }
+    if (!this._enableSoftDeleted) {
+      return this.entity.destroy(where);
+    }
+    const deleteWhere = this._wrapWhere(where);
 
-    return this.entity.update(deleteWhere);
+    const data = {
+      [this._softDeleted]: this._softDeletedNo,
+    };
+
+    return this.entity.update(data, deleteWhere);
   }
 
 
@@ -145,8 +152,11 @@ class BaseModel extends EventEmitter {
    * @param {Object} where 编辑条件
    * @param {Object} data 待编辑的数据
    */
-  async update(where, data) {
-    const updateWhere = this.wrapWhere(where);
+  async update(where = {}, data) {
+    if (Object.keys(where).length === 0) {
+      throw new Error('No update conditions');
+    }
+    const updateWhere = this._wrapWhere(where);
 
     return this.entity.update(data, updateWhere);
   }

@@ -1,5 +1,26 @@
 # sequelize-base
+
+[![NPM version][npm-image]][npm-url]
+[![build status][travis-image]][travis-url]
+[![Test coverage][codecov-image]][codecov-url]
+[![npm download][download-image]][download-url]
+
+[npm-image]: https://img.shields.io/npm/v/sequelize-base.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/sequelize-base
+[travis-image]: https://img.shields.io/travis/rickyes/sequelize-base.svg?style=flat-square
+[travis-url]: https://travis-ci.org/rickyes/sequelize-base
+[codecov-image]: https://codecov.io/github/rickyes/sequelize-base.svg?branch=master
+[codecov-url]: https://codecov.io/github/rickyes/sequelize-base?branch=master
+[download-image]: https://img.shields.io/npm/dm/sequelize-base.svg?style=flat-square
+[download-url]: https://npmjs.org/package/sequelize-base
+
 A base class for sequelize with some common functions.
+
+### Install
+
+```bash
+$ npm install sequelize-base
+```
 
 ### Usage
 ```js
