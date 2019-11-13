@@ -72,6 +72,7 @@ module.exports = UserModel;
 ```
 
 #### API
+> 请参考 [测试套件](./test.js)
 - super(config)
    - config.entity sequelize model
    - config.enableSoftDeleted 是否开启软删除，默认为 true
@@ -81,10 +82,14 @@ module.exports = UserModel;
    - config.softDeleted.no 软删除字段无效枚举值
 
 - instance
-   - count(where)
-   - getList(where, fields?) or getList(fields)
+   - count(where?)
+   - getList(where, fields?)
+      - or getList(fields)
+      - or getList()
    - getData(where, fields?)
-   - getPageList(currentPage, pageSize, where, fields)
+   - getPageList(currentPage, pageSize, where?, fields?)
+     - or getPageList(currentPage, pageSize, fields)
+     - or getPageList(currentPage, pageSize)
    - create(data)
    - delete(where)
    - update(where, data)
