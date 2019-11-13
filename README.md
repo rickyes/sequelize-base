@@ -9,7 +9,7 @@
 [npm-url]: https://npmjs.org/package/sequelize-base
 [travis-image]: https://img.shields.io/travis/rickyes/sequelize-base.svg?style=flat-square
 [travis-url]: https://travis-ci.org/rickyes/sequelize-base
-[codecov-image]: https://codecov.io/github/rickyes/sequelize-base.svg?branch=master
+[codecov-image]: https://codecov.io/gh/rickyes/sequelize-base/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/github/rickyes/sequelize-base?branch=master
 [download-image]: https://img.shields.io/npm/dm/sequelize-base.svg?style=flat-square
 [download-url]: https://npmjs.org/package/sequelize-base
