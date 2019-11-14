@@ -2,7 +2,6 @@
 
 import test from 'ava';
 import Base from './app';
-import util from './util';
 
 const UPDATE = 'update';
 const DESTORY = 'destroy';
@@ -142,6 +141,30 @@ test('getList() 列表', async t => {
   t.deepEqual(result.where.where, {invalid: 'N'});
   t.is(result.where.attributes, undefined);
   t.is(result.method, FIND_ALL);
+
+  result = await model.getList(where, fields, {});
+  t.deepEqual(result.where.where, Object.assign({invalid: 'N'}, where));
+  t.deepEqual(result.where.attributes, fields);
+  t.deepEqual(result.where.order, undefined);
+  t.is(result.method, FIND_ALL);
+
+  result = await model.getList(where, fields, {field: 'ctime'});
+  t.deepEqual(result.where.where, Object.assign({invalid: 'N'}, where));
+  t.deepEqual(result.where.attributes, fields);
+  t.deepEqual(result.where.order, [['ctime', 'desc']]);
+  t.is(result.method, FIND_ALL);
+
+  result = await model.getList(where, fields, {field: 'ctime', sort: 'asc'});
+  t.deepEqual(result.where.where, Object.assign({invalid: 'N'}, where));
+  t.deepEqual(result.where.attributes, fields);
+  t.deepEqual(result.where.order, [['ctime', 'asc']]);
+  t.is(result.method, FIND_ALL);
+
+  result = await model.getList(where, fields, [{field: 'mtime', sort: 'asc'}]);
+  t.deepEqual(result.where.where, Object.assign({invalid: 'N'}, where));
+  t.deepEqual(result.where.attributes, fields);
+  t.deepEqual(result.where.order, [['mtime', 'asc']]);
+  t.is(result.method, FIND_ALL);
 });
 
 
@@ -201,6 +224,38 @@ test('getPageList() 分页查询', async t => {
   t.is(result.where.offset, 0);
   t.is(result.where.limit, 10);
   t.is(result.where.attributes, fields);
+  t.is(result.method, FIND_AND_COUNT_ALL);
+
+  result = await model.getPageList(currentPage, pageSize, where, fields, {});
+  t.deepEqual(result.where.where, Object.assign({invalid: 'N'}, where));
+  t.is(result.where.offset, 0);
+  t.is(result.where.limit, 10);
+  t.is(result.where.attributes, fields);
+  t.is(result.where.order, undefined);
+  t.is(result.method, FIND_AND_COUNT_ALL);
+
+  result = await model.getPageList(currentPage, pageSize, where, fields, {field: 'ctime'});
+  t.deepEqual(result.where.where, Object.assign({invalid: 'N'}, where));
+  t.is(result.where.offset, 0);
+  t.is(result.where.limit, 10);
+  t.is(result.where.attributes, fields);
+  t.deepEqual(result.where.order, [['ctime', 'desc']]);
+  t.is(result.method, FIND_AND_COUNT_ALL);
+
+  result = await model.getPageList(currentPage, pageSize, where, fields, {field: 'ctime', sort: 'desc'});
+  t.deepEqual(result.where.where, Object.assign({invalid: 'N'}, where));
+  t.is(result.where.offset, 0);
+  t.is(result.where.limit, 10);
+  t.is(result.where.attributes, fields);
+  t.deepEqual(result.where.order, [['ctime', 'desc']]);
+  t.is(result.method, FIND_AND_COUNT_ALL);
+
+  result = await model.getPageList(currentPage, pageSize, where, fields, [{field: 'ctime'}]);
+  t.deepEqual(result.where.where, Object.assign({invalid: 'N'}, where));
+  t.is(result.where.offset, 0);
+  t.is(result.where.limit, 10);
+  t.is(result.where.attributes, fields);
+  t.deepEqual(result.where.order, [['ctime', 'desc']]);
   t.is(result.method, FIND_AND_COUNT_ALL);
 });
 

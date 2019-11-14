@@ -4,6 +4,13 @@
  * sequelize model 基类
  */
 
+/**
+ * 排序
+ * @typedef   {Object} orderBy 排序规则
+ * @property  {String} field 排序字段
+ * @property  {string} sort? 排序顺序
+ */
+
 const EventEmitter = require('events').EventEmitter;
 const util = require('./util');
 
@@ -55,6 +62,32 @@ class BaseModel extends EventEmitter {
     fields.length && (findWhere.attributes = fields);
   }
 
+
+  /**
+   * 附加排序规则
+   * @param {Object} whereOpts where 配置
+   * @param {Array<orderBy>|orderBy} order? 排序配置
+   */
+  _appendOrder(whereOpts, order) {
+    let orderTemp = [];
+    if (util.isType('Object', order)) {
+      orderTemp.push(order);
+    } else {
+      orderTemp = orderTemp.concat(order);
+    }
+    const orderWhere = [];
+    orderTemp.some(o => {
+      if (util.isEmpty(o.field)) return true;
+      orderWhere.push([
+        o.field, o.sort || 'desc',
+      ]);
+    });
+    if (orderWhere.length) {
+      whereOpts.order = orderWhere;
+    }
+  }
+
+
   /**
    * 统计数量
    * @param {Object}? where 统计条件
@@ -69,13 +102,16 @@ class BaseModel extends EventEmitter {
 
   /**
    * 查询列表
-   * @param {Object}? where 查询条件
-   * @param {Array<String>}? fields 返回字段
+   * @param {Object} where? 查询条件
+   * @param {Array<String>} fields? 返回字段
+   * @param {Array<orderBy>|orderBy} order? 排序配置
    * @returns {Array<Object>} 返回值
    */
-  async getList(where = {}, fields = []) {
+  async getList(where = {}, fields = [], order = []) {
     const [whereTmp, fieldsTemp] = util.wrapWhereFieldsByType(where, fields);
-    const findWhere = this._wrapWhere(whereTmp);
+    const whereOpts = {};
+    this._appendOrder(whereOpts, order);
+    const findWhere = this._wrapWhere(whereTmp, whereOpts);
     this._appendFields(findWhere, fieldsTemp);
 
     return this.entity.findAll(findWhere);
@@ -104,11 +140,14 @@ class BaseModel extends EventEmitter {
    * @param {Number} pageSize 每页数量
    * @param {Object} where? 查询条件
    * @param {Array<String>} fields? 返回字段
+   * @param {Array<orderBy>|orderBy} order? 排序配置
    */
-  async getPageList(currentPage, pageSize, where, fields = []) {
+  async getPageList(currentPage, pageSize, where, fields = [], order = []) {
     const offset = util.getOffset(currentPage, pageSize);
     const [whereTmp, fieldsTemp] = util.wrapWhereFieldsByType(where, fields);
-    const findWhere = this._wrapWhere(whereTmp, {offset, limit: pageSize});
+    let whereOpts = {offset, limit: pageSize};
+    this._appendOrder(whereOpts, order);
+    const findWhere = this._wrapWhere(whereTmp, whereOpts);
     this._appendFields(findWhere, fieldsTemp);
 
     return this.entity.findAndCountAll(findWhere);
