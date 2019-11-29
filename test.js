@@ -295,4 +295,6 @@ test('getPageListContact() 关联分页查询', async t => {
   t.is(result.method, FIND_AND_COUNT_ALL);
   t.is(result.count, 1);
   t.deepEqual(result.rows, [{ id: 1, nickName: 'test', avatarUrl: 'url' }]);
+
+  mm.restore();
 });
