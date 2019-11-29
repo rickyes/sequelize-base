@@ -87,6 +87,15 @@ class BaseModel extends EventEmitter {
     }
   }
 
+  /**
+   * 添加关联关系
+   * @param {Object} whereOpts where 配置
+   * @param {Array<Object>} include 关联关系 model
+   */
+  _appendContact(whereOpts, include) {
+    whereOpts.include = include;
+  }
+
 
   /**
    * 统计数量
@@ -151,6 +160,38 @@ class BaseModel extends EventEmitter {
     this._appendFields(findWhere, fieldsTemp);
 
     return this.entity.findAndCountAll(findWhere);
+  }
+
+  /**
+   * 分页关联查询
+   * @param {Array<Object>} include 关联model数组配置，和sequelize保持一致
+   * @param {Number} currentPage 当前页
+   * @param {Number} pageSize 每页数量
+   * @param {Object} where? 查询条件
+   * @param {Array<String>} fields? 返回字段
+   * @param {Array<orderBy>|orderBy} order? 排序配置
+   */
+  async getPageListContact(include, currentPage, pageSize, where, fields = [], order = []) {
+    const offset = util.getOffset(currentPage, pageSize);
+    const [whereTmp, fieldsTemp] = util.wrapWhereFieldsByType(where, fields);
+    // 默认开启原始查询
+    let whereOpts = {offset, limit: pageSize, raw: true};
+    this._appendOrder(whereOpts, order);
+    const findWhere = this._wrapWhere(whereTmp, whereOpts);
+    this._appendFields(findWhere, fieldsTemp);
+    this._appendContact(findWhere, include);
+    
+    const data = await this.entity.findAndCountAll(findWhere);
+    data.rows = data.rows.map(r => {
+      Object.keys(r).forEach(keyName => {
+        if (keyName.includes('.')) {
+          r[keyName.split('.')[1]] = r[keyName];
+          delete r[keyName];
+        }
+      });
+      return r;
+    });
+    return data;
   }
 
 

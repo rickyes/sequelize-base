@@ -95,3 +95,7 @@ module.exports = UserModel;
    - create(data)
    - delete(where)
    - update(where, data)
+   - getPageListContact(include, currentPage, pageSize, where?, fields?)
+     - or getPageListContact(include, currentPage, pageSize, fields)
+     - or getPageListContact(include, currentPage, pageSize)
+     - or getPageListContact(include, currentPage, pageSize, fields, order)

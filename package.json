@@ -23,6 +23,7 @@
   "homepage": "https://github.com/rickyes/sequelize-base#readme",
   "devDependencies": {
     "ava": "^2.4.0",
+    "mm": "^2.5.0",
     "nyc": "^14.1.1"
   }
 }

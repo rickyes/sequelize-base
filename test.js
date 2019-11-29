@@ -1,6 +1,7 @@
 'use strict';
 
 import test from 'ava';
+import mm from 'mm';
 import Base from './app';
 
 const UPDATE = 'update';
@@ -259,3 +260,39 @@ test('getPageList() 分页查询', async t => {
   t.is(result.method, FIND_AND_COUNT_ALL);
 });
 
+
+test('getPageListContact() 关联分页查询', async t => {
+  let model = Model.getInstance();
+  const where = {
+    userId: 1,
+  };
+
+  mm(mockEntity, FIND_AND_COUNT_ALL, async where => {
+    return {where, method: FIND_AND_COUNT_ALL, count: 1, rows: [{
+      'User.nickName': 'test',
+      'id': 1,
+      'User.avatarUrl': 'url',
+    }]};
+  });
+
+  const fields = ['a'];
+
+  const include = [{
+    model: () => {},
+    where: {
+      id: 1,
+    },
+    attributes: ['nickName', 'avatarUrl'],
+    required: false,
+  }];
+
+  let result = await model.getPageListContact(include, 1, 10, where, fields);
+  t.deepEqual(result.where.where, Object.assign({invalid: 'N'}, where));
+  t.is(result.where.offset, 0);
+  t.is(result.where.limit, 10);
+  t.is(result.where.attributes, fields);
+  t.is(result.where.include, include);
+  t.is(result.method, FIND_AND_COUNT_ALL);
+  t.is(result.count, 1);
+  t.deepEqual(result.rows, [{ id: 1, nickName: 'test', avatarUrl: 'url' }]);
+});
