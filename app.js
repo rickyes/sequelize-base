@@ -127,6 +127,27 @@ class BaseModel extends EventEmitter {
   }
 
 
+  async getListContact(include, where = {}, fields = [], order = []) {
+    const [whereTmp, fieldsTemp] = util.wrapWhereFieldsByType(where, fields);
+    const whereOpts = {raw: true};
+    this._appendOrder(whereOpts, order);
+    const findWhere = this._wrapWhere(whereTmp, whereOpts);
+    this._appendFields(findWhere, fieldsTemp);
+    this._appendContact(findWhere, include);
+
+    const data = await this.entity.findAll(findWhere);
+    return data.map(r => {
+      Object.keys(r).forEach(keyName => {
+        if (keyName.includes('.')) {
+          r[keyName.split('.')[1]] = r[keyName];
+          delete r[keyName];
+        }
+      });
+      return r;
+    });
+  }
+
+
   /**
    * 查询
    * @param {Object} where 查询条件
