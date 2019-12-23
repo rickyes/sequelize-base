@@ -1,6 +1,6 @@
 {
   "name": "sequelize-base",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A base class for sequelize with some common functions.",
   "main": "app.js",
   "scripts": {
