@@ -34,6 +34,28 @@ class BaseModel extends EventEmitter {
     this._softDeleted = softDeleted && softDeleted.field || 'invalid';
     this._softDeletedYes = softDeleted && softDeleted.yes || 'N';
     this._softDeletedNo = softDeleted && softDeleted.no || 'Y';
+    this._log = config.logger || console;
+    this._cacher = config.cacher;
+    this._entityName = this.entity.name;
+
+    const self = this;
+
+    if (config.cacher) {
+      // 代理entity方法
+      self.entity = new Proxy(self.entity, {
+        get: function(target, key) {
+          const value = target[key];
+          return function(...args) {
+            if (self._cacher[key]) {
+              self._log.info('Executed (cache): ', self._entityName, JSON.stringify(args));
+              return Reflect.apply(self._cacher[key], self._cacher, args);
+            }
+            self._log.warn('sequelize-base-cacher Unsupported method:', key);
+            return Reflect.apply(value, target, args);
+          };
+        },
+      });
+    }
   }
 
 
