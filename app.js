@@ -13,6 +13,8 @@
 
 const EventEmitter = require('events').EventEmitter;
 const util = require('./util');
+const toString = Object.prototype.toString;
+const FindMethods = ['findOne', 'findAll', 'count', 'find', 'findAndCountAll'];
 
 class BaseModel extends EventEmitter {
 
@@ -28,6 +30,7 @@ class BaseModel extends EventEmitter {
   constructor(config) {
     super();
     this.entity = config.entity;
+    this.model = config.entity;
     this._enableSoftDeleted = true;
     config.enableSoftDeleted === false && (this._enableSoftDeleted = false);
     const softDeleted = config.softDeleted || {};
@@ -43,15 +46,18 @@ class BaseModel extends EventEmitter {
     if (config.cacher) {
       // 代理entity方法
       self.entity = new Proxy(self.entity, {
-        get: function(target, key) {
-          const value = target[key];
+        get: function(target, key, receiver) {
+          if (!FindMethods.includes(key)) {
+            return Reflect.get(target, key, receiver);
+          }
           return function(...args) {
-            if (self._cacher[key]) {
-              self._log.info('Executed (cache): ', self._entityName, JSON.stringify(args));
-              return Reflect.apply(self._cacher[key], self._cacher, args);
+            const tables = [self.model.getTableName()];
+            if (args.length && toString(args[0].include) === '[Object Array]') {
+              args[0].include.forEach(t => {
+                tables.push(t.model.getTableName());
+              });
             }
-            self._log.warn('sequelize-base-cacher Unsupported method:', key);
-            return Reflect.apply(value, target, args);
+            return self._cacher.run(key, tables, ...args);
           };
         },
       });
