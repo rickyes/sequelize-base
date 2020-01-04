@@ -14,6 +14,7 @@
 const EventEmitter = require('events').EventEmitter;
 const util = require('./util');
 const toString = Object.prototype.toString;
+const entityKey = Symbol('sequelize-base#model')
 const FindMethods = ['findOne', 'findAll', 'count', 'find', 'findAndCountAll'];
 
 class BaseModel extends EventEmitter {
@@ -29,7 +30,7 @@ class BaseModel extends EventEmitter {
    */
   constructor(config) {
     super();
-    this.entity = config.entity;
+    this[entityKey] = config.entity;
     this.model = config.entity;
     this._enableSoftDeleted = true;
     config.enableSoftDeleted === false && (this._enableSoftDeleted = false);
@@ -37,15 +38,14 @@ class BaseModel extends EventEmitter {
     this._softDeleted = softDeleted && softDeleted.field || 'invalid';
     this._softDeletedYes = softDeleted && softDeleted.yes || 'N';
     this._softDeletedNo = softDeleted && softDeleted.no || 'Y';
-    this._log = config.logger || console;
     this._cacher = config.cacher;
-    this._entityName = this.entity.name;
+    this._entityName = this.model.name;
 
     const self = this;
 
     if (config.cacher) {
       // 代理entity方法
-      self.entity = new Proxy(self.entity, {
+      self[entityKey] = new Proxy(self[entityKey], {
         get: function(target, key, receiver) {
           if (!FindMethods.includes(key)) {
             return Reflect.get(target, key, receiver);
@@ -133,7 +133,7 @@ class BaseModel extends EventEmitter {
   async count(where) {
     const findWhere = this._wrapWhere(where);
 
-    return this.entity.count(findWhere);
+    return this[entityKey].count(findWhere);
   }
 
 
@@ -151,7 +151,7 @@ class BaseModel extends EventEmitter {
     const findWhere = this._wrapWhere(whereTmp, whereOpts);
     this._appendFields(findWhere, fieldsTemp);
 
-    return this.entity.findAll(findWhere);
+    return this[entityKey].findAll(findWhere);
   }
 
 
@@ -163,7 +163,7 @@ class BaseModel extends EventEmitter {
     this._appendFields(findWhere, fieldsTemp);
     this._appendContact(findWhere, include);
 
-    const data = await this.entity.findAll(findWhere);
+    const data = await this[entityKey].findAll(findWhere);
     return data.map(r => {
       Object.keys(r).forEach(keyName => {
         if (keyName.includes('.')) {
@@ -188,7 +188,7 @@ class BaseModel extends EventEmitter {
     const findWhere = this._wrapWhere(where, {raw: true});
     this._appendFields(findWhere, fields);
 
-    return this.entity.findOne(findWhere);
+    return this[entityKey].findOne(findWhere);
   }
 
 
@@ -208,7 +208,7 @@ class BaseModel extends EventEmitter {
     const findWhere = this._wrapWhere(whereTmp, whereOpts);
     this._appendFields(findWhere, fieldsTemp);
 
-    return this.entity.findAndCountAll(findWhere);
+    return this[entityKey].findAndCountAll(findWhere);
   }
 
   /**
@@ -230,7 +230,7 @@ class BaseModel extends EventEmitter {
     this._appendFields(findWhere, fieldsTemp);
     this._appendContact(findWhere, include);
     
-    const data = await this.entity.findAndCountAll(findWhere);
+    const data = await this[entityKey].findAndCountAll(findWhere);
     data.rows = data.rows.map(r => {
       Object.keys(r).forEach(keyName => {
         if (keyName.includes('.')) {
@@ -249,7 +249,7 @@ class BaseModel extends EventEmitter {
    * @param {Object} data data
    */
   async create(data) {
-    const model = new this.entity(data);
+    const model = new this[entityKey](data);
 
     return model.save();
   }
@@ -264,7 +264,7 @@ class BaseModel extends EventEmitter {
       throw new Error('No delete conditions');
     }
     if (!this._enableSoftDeleted) {
-      return this.entity.destroy(where);
+      return this[entityKey].destroy(where);
     }
     const deleteWhere = this._wrapWhere(where);
 
@@ -272,7 +272,7 @@ class BaseModel extends EventEmitter {
       [this._softDeleted]: this._softDeletedNo,
     };
 
-    return this.entity.update(data, deleteWhere);
+    return this[entityKey].update(data, deleteWhere);
   }
 
 
@@ -287,7 +287,7 @@ class BaseModel extends EventEmitter {
     }
     const updateWhere = this._wrapWhere(where);
 
-    return this.entity.update(data, updateWhere);
+    return this[entityKey].update(data, updateWhere);
   }
 
 }
