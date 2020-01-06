@@ -35,8 +35,8 @@ mockEntity[FIND_AND_COUNT_ALL] = async where => {
   return {where, method: FIND_AND_COUNT_ALL}
 };
 
-mockEntity.prototype.save = async function() {
-  return {data: this.data, method: CREATE};
+mockEntity[CREATE] = async (data) => {
+  return {data: data, method: CREATE}
 };
 
 

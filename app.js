@@ -16,6 +16,7 @@ const util = require('./util');
 const toString = Object.prototype.toString;
 const entityKey = Symbol('sequelize-base#model')
 const FindMethods = ['findOne', 'findAll', 'count', 'find', 'findAndCountAll'];
+const UpdateMethods = ['create', 'update', 'destroy'];
 
 class BaseModel extends EventEmitter {
 
@@ -47,21 +48,32 @@ class BaseModel extends EventEmitter {
       // 代理entity方法
       self[entityKey] = new Proxy(self[entityKey], {
         get: function(target, key, receiver) {
-          if (!FindMethods.includes(key)) {
-            return Reflect.get(target, key, receiver);
+          if (FindMethods.includes(key)) {
+            return function(...args) {
+              const tables = self._getTableNames(args);
+              return self._cacher.run(key, tables, ...args);
+            };
           }
-          return function(...args) {
-            const tables = [self.model.getTableName()];
-            if (args.length && toString(args[0].include) === '[Object Array]') {
-              args[0].include.forEach(t => {
-                tables.push(t.model.getTableName());
-              });
-            }
-            return self._cacher.run(key, tables, ...args);
-          };
+
+          if (UpdateMethods.includes(key)) {
+            self._cacher.batchClearCache([self.model.getTableName()]);
+          }
+
+          return Reflect.get(target, key, receiver);
         },
       });
     }
+  }
+
+  _getTableNames(args) {
+    const self = this;
+    const tables = [self.model.getTableName()];
+    if (args.length && toString(args[0].include) === '[Object Array]') {
+      args[0].include.forEach(t => {
+        tables.push(t.model.getTableName());
+      });
+    }
+    return tables;
   }
 
 
@@ -249,9 +261,7 @@ class BaseModel extends EventEmitter {
    * @param {Object} data data
    */
   async create(data) {
-    const model = new this[entityKey](data);
-
-    return model.save();
+    return this[entityKey].create(data);
   }
 
 
