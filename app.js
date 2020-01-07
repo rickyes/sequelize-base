@@ -68,7 +68,7 @@ class BaseModel extends EventEmitter {
   _getTableNames(args) {
     const self = this;
     const tables = [self.model.getTableName()];
-    if (args.length && toString(args[0].include) === '[Object Array]') {
+    if (args.length && toString.call(args[0].include) === '[object Array]') {
       args[0].include.forEach(t => {
         tables.push(t.model.getTableName());
       });
