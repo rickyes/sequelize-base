@@ -14,9 +14,8 @@
 const EventEmitter = require('events').EventEmitter;
 const util = require('./util');
 const toString = Object.prototype.toString;
-const entityKey = Symbol('sequelize-base#model')
-const FindMethods = ['findOne', 'findAll', 'count', 'find', 'findAndCountAll'];
-const UpdateMethods = ['create', 'update', 'destroy'];
+const entityKey = Symbol.for('sequelize-base#model')
+const SOFT_DELETED = Symbol.for('sequelize-base#softDeleted');
 
 class BaseModel extends EventEmitter {
 
@@ -48,14 +47,14 @@ class BaseModel extends EventEmitter {
       // 代理entity方法
       self[entityKey] = new Proxy(self[entityKey], {
         get: function(target, key, receiver) {
-          if (FindMethods.includes(key)) {
+          if (self._cacher.getFindMethods().includes(key)) {
             return function(...args) {
               const tables = self._getTableNames(args);
               return self._cacher.run(key, tables, ...args);
             };
           }
 
-          if (UpdateMethods.includes(key)) {
+          if (self._cacher.getUpdateMethods().includes(key)) {
             self._cacher.batchClearCache([self.model.getTableName()]);
           }
 
@@ -82,9 +81,12 @@ class BaseModel extends EventEmitter {
    * @param {Object} where 查询条件
    * @param {Object} opts 查询配置参数
    */
-  _wrapWhere(where, opts = {}) {
+  _wrapWhere(where = {}, opts = {}) {
     const baseWhere = {};
-    this._enableSoftDeleted && (baseWhere[this._softDeleted] = this._softDeletedYes);
+    // model 开启软删除，且查询参数 [SOFT_DELETED] 不为 false, 用于个别查询不需要软删除条件
+    if (this._enableSoftDeleted && where[SOFT_DELETED] !== false) {
+      baseWhere[this._softDeleted] = this._softDeletedYes;
+    };
     const findWhere = {
       where: Object.assign(baseWhere, where),
     };
@@ -301,5 +303,7 @@ class BaseModel extends EventEmitter {
   }
 
 }
+
+BaseModel.SOFT_DELETED = SOFT_DELETED;
 
 module.exports = BaseModel;

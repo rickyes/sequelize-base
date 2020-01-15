@@ -99,3 +99,6 @@ module.exports = UserModel;
      - or getPageListContact(include, currentPage, pageSize, fields)
      - or getPageListContact(include, currentPage, pageSize)
      - or getPageListContact(include, currentPage, pageSize, fields, order)
+
+- instance where
+   - [Base.SOFT_DELETED] 是否构造软删除有效字段条件
