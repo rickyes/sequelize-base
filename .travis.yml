@@ -9,8 +9,8 @@ node_js:
   - '10'
   - '12'
 install:
-  - 'npm i npminstall && npminstall'
+  - npm install
 script:
-  - 'npm run ci'
+  - npm run cov
 after_script:
-  - 'npm i codecov && codecov'
+  - npm i codecov -g && codecov

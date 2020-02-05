@@ -22,11 +22,11 @@ class BaseModel extends EventEmitter {
   /**
    * @param {Object} config
    * @param {import('sequelize').ModelType} config.entity sequelize 实体
-   * @param {Boolean} config.enableSoftDeleted 是否开启软删除，默认 true
-   * @param {Object} config.softDeleted 软删除配置
-   * @param {String} config.softDeleted.field 软删除字段名
-   * @param {String} config.softDeleted.yes 软删除字段有效枚举值
-   * @param {String} config.softDeleted.no 软删除字段无效枚举值
+   * @param {Boolean} config.enableSoftDeleted? 是否开启软删除，默认 true
+   * @param {Object} config.softDeleted? 软删除配置
+   * @param {String} config.softDeleted.field? 软删除字段名
+   * @param {String} config.softDeleted.yes? 软删除字段有效枚举值
+   * @param {String} config.softDeleted.no? 软删除字段无效枚举值
    */
   constructor(config) {
     super();
