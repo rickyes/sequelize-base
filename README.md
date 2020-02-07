@@ -82,6 +82,7 @@ module.exports = UserModel;
    - config.softDeleted.no 软删除字段无效枚举值
 
 - instance
+   - model sequelize model instance, 参考 [sequelize model usage api](https://sequelize.org/v4/manual/tutorial/models-usage.html)
    - count(where?)
    - getList(where, fields?)
       - or getList(fields)
