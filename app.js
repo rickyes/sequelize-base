@@ -189,7 +189,8 @@ class BaseModel extends EventEmitter {
     return data.map(r => {
       Object.keys(r).forEach(keyName => {
         if (keyName.includes('.')) {
-          r[keyName.split('.')[1]] = r[keyName];
+          const fieldPrefixs = keyName.split('.');
+          r[fieldPrefixs[fieldPrefixs.length - 1]] = r[keyName];
           delete r[keyName];
         }
       });
@@ -256,7 +257,8 @@ class BaseModel extends EventEmitter {
     data.rows = data.rows.map(r => {
       Object.keys(r).forEach(keyName => {
         if (keyName.includes('.')) {
-          r[keyName.split('.')[1]] = r[keyName];
+          const fieldPrefixs = keyName.split('.');
+          r[fieldPrefixs[fieldPrefixs.length - 1]] = r[keyName];
           delete r[keyName];
         }
       });
