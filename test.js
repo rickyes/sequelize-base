@@ -189,6 +189,11 @@ test('getData() 详情', async t => {
   t.deepEqual(result.where.where, Object.assign({invalid: 'N'}, where));
   t.is(result.where.attributes, fields);
   t.is(result.method, FIND_ONE);
+
+  result = await model.getData({
+    [Symbol.for('Or')]: {},
+  });
+  t.deepEqual(result.where.where, {invalid: 'N', [Symbol.for('Or')]: {},});
 });
 
 test('getPageList() 分页查询', async t => {

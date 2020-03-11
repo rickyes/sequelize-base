@@ -54,3 +54,18 @@ exports.isEmpty = function() {
   }
   return false;
 };
+
+
+/**
+ * 获取对象的 KEY 个数
+ * @param {Object} obj 对象
+ * @param {Boolean} isSymbol? 是否包含 symbol，默认 true
+ * @returns {Number}
+ */
+exports.getObjectKeys = (obj, isSymbol = true) => {
+  const keysNum = Object.keys(obj).length;
+  if (isSymbol) {
+    return keysNum + Object.getOwnPropertySymbols(obj).length;
+  }
+  return keysNum;
+};

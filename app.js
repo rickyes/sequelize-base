@@ -169,6 +169,14 @@ class BaseModel extends EventEmitter {
   }
 
 
+  /**
+   * 连表查询列表
+   * @param {Array<Object>} include 关联model数组配置，和sequelize保持一致
+   * @param {Object} where 查询条件
+   * @param {Array<String>} fields 返回字段
+   * @param {Array<orderBy>|orderBy} order? 排序配置
+   * @returns {Array<Object>} 返回值
+   */
   async getListContact(include, where = {}, fields = [], order = []) {
     const [whereTmp, fieldsTemp] = util.wrapWhereFieldsByType(where, fields);
     const whereOpts = {raw: true};
@@ -196,7 +204,7 @@ class BaseModel extends EventEmitter {
    * @param {Array<String>}? fields 返回字段
    */
   async getData(where = {}, fields = []) {
-    if (Object.keys(where).length === 0) {
+    if (util.getObjectKeys(where) === 0) {
       throw new Error('No query conditions');
     }
     const findWhere = this._wrapWhere(where, {raw: true});
@@ -272,7 +280,7 @@ class BaseModel extends EventEmitter {
    * @param {Object} where 删除条件
    */
   async delete(where = {}) {
-    if (Object.keys(where).length === 0) {
+    if (util.getObjectKeys(where) === 0) {
       throw new Error('No delete conditions');
     }
     if (!this._enableSoftDeleted) {
@@ -294,7 +302,7 @@ class BaseModel extends EventEmitter {
    * @param {Object} data 待编辑的数据
    */
   async update(where = {}, data) {
-    if (Object.keys(where).length === 0) {
+    if (util.getObjectKeys(where) === 0) {
       throw new Error('No update conditions');
     }
     const updateWhere = this._wrapWhere(where);
