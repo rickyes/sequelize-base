@@ -283,10 +283,12 @@ class BaseModel extends EventEmitter {
     if (util.getObjectKeys(where) === 0) {
       throw new Error('No delete conditions');
     }
+
+    const deleteWhere = this._wrapWhere(where);
+
     if (!this._enableSoftDeleted) {
       return this[entityKey].destroy(where);
     }
-    const deleteWhere = this._wrapWhere(where);
 
     const data = {
       [this._softDeleted]: this._softDeletedNo,
