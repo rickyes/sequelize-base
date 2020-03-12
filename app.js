@@ -289,7 +289,7 @@ class BaseModel extends EventEmitter {
     const deleteWhere = this._wrapWhere(where);
 
     if (!this._enableSoftDeleted) {
-      return this[entityKey].destroy(where);
+      return this[entityKey].destroy(deleteWhere);
     }
 
     const data = {
