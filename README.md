@@ -56,19 +56,14 @@ const UserEntity = pool.define('User', attributes, {
 class UserModel extends Base {
 
   constructor() {
-    super({entity: UserEntity});
-  }
-
-  static getInstance() {
-    if (!this.instance) {
-      this.instance = new UserModel();
-    }
-    return this.instance;
+    super({
+      entity: UserEntity,
+    });
   }
 
 }
 
-module.exports = UserModel;
+module.exports = new UserModel();
 ```
 
 #### API
