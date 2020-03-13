@@ -71,7 +71,7 @@ test('delete() 根据是否配置软删除进行删除', async t => {
   t.is(error.message, 'No delete conditions');
 
   let result = await model.delete(where);
-  t.deepEqual(result.where, where);
+  t.deepEqual(result.where.where, where);
   t.is(result.method, DESTORY);
 
   model = new Model({entity: mockEntity});
