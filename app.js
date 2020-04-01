@@ -171,7 +171,7 @@ class BaseModel extends EventEmitter {
 
   /**
    * 连表查询列表
-   * @param {Array<Object>} include 关联model数组配置，和sequelize保持一致
+   * @param {Array<import('sequelize').IncludeOptions>} include 关联model数组配置，和sequelize保持一致
    * @param {Object} where 查询条件
    * @param {Array<String>} fields 返回字段
    * @param {Array<orderBy>|orderBy} order? 排序配置
@@ -236,7 +236,7 @@ class BaseModel extends EventEmitter {
 
   /**
    * 分页关联查询
-   * @param {Array<Object>} include 关联model数组配置，和sequelize保持一致
+   * @param {Array<import('sequelize').IncludeOptions>} include 关联model数组配置，和sequelize保持一致
    * @param {Number} currentPage 当前页
    * @param {Number} pageSize 每页数量
    * @param {Object} where? 查询条件
